@@ -34,6 +34,13 @@
 //	int 	cnt;
 //}			t_gnl_info;
 
+typedef struct s_gnl_info
+{
+	size_t	buf_idx;
+	size_t	nl_cnt;
+	size_t	is_eof;
+	char 	buf[BUFFER_SIZE + 1];
+}			t_gnl_info;
 
 
 char	*get_next_line(int fd);

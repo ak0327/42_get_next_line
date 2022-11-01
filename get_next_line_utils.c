@@ -55,4 +55,3 @@ char	*ft_strjoin(char *dst, char *src)
 	free(dst);
 	return (ret);
 }
-
