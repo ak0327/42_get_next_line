@@ -12,112 +12,111 @@
 
 #include "get_next_line.h"
 
-static char	*make_ret(char *buf, t_gnl_info info)
+void	init_params(char *buf, size_t *buf_idx, size_t *nl_cnt, size_t *is_eof)
 {
-	char	*ret;
-
-	ret = (char *)ft_calloc(sizeof(char), 1);
-	if (!ret)
-		return (NULL);
-	if (info.res_byte)
-	{
-		ret = ft_strjoin(ret, &buf[info.buf_idx], info.res_byte);
-		if (!ret)
-			return (NULL);
-	}
-	return (ret);
-}
-
-static char	*get_one_line_frm_idx(char *buf, t_gnl_info *info)
-{
-	char	*ret;
 	size_t	i;
 
 	i = 0;
-	while (buf[info->buf_idx + i] != '\n' && buf[info->buf_idx + i] != '\0')
-		i++;
-	if (buf[info->buf_idx + i] == '\n')
-		i++;
-	ret = (char *)ft_calloc(sizeof(char), i + 1);
+	while (i < BUFFER_SIZE + 1)
+		buf[i++] = '\0';
+	*buf_idx = 0;
+	*nl_cnt = 0;
+	*is_eof = 0;
+}
+
+size_t	cnt_nl(char *buf)
+{
+	size_t	i;
+	size_t	cnt;
+
+	i = 0;
+	cnt = 0;
+
+	while (buf[i])
+		if (buf[i++] == '\n')
+			cnt++;
+	return (cnt);
+}
+
+char	*get_nl_cnt(char *buf, size_t *nl_cnt, size_t *buf_idx, size_t *is_eof)
+{
+	char	*ret;
+	size_t	size;
+
+	size = 0;
+	while (buf[*buf_idx + size])
+		if (buf[*buf_idx + size++] == '\n') // ~\n, ~\0
+			break ;
+	ret = (char *)malloc(sizeof(char) * (size + 1));
 	if (!ret)
 		return (NULL);
-	ret = ft_strjoin(ret, &buf[info->buf_idx], i);
-	if (!ret)
-		return (NULL);
-	info->buf_idx += i;
-	info->gnl_cnt -= 1;
-	info->res_byte -= i;
+	ft_memcpy(ret, &buf[*buf_idx], size);
+	ret[size] = '\0';
+	*buf_idx += size;
+	*nl_cnt -= 1;
+	if (ft_strlen(buf) <= *buf_idx)
+		init_params(buf, buf_idx, nl_cnt, is_eof);
 	return (ret);
 }
 
-static char	*ret_next_line(char *ret, char *buf, t_gnl_info *info)
+char	*get_no_nl_cnt(char *buf, size_t *buf_idx)
 {
-	char	*one_line;
+	char			*dst;
+	const size_t	buflen = ft_strlen(buf) - *buf_idx;
 
-	info->buf_idx = 0;
-	info->res_byte = info->buf_size;
-	one_line = get_one_line_frm_idx(buf, info);
-	if (!one_line)
-		return (NULL);
-	ret = ft_strjoin(ret, one_line, ft_strlen(one_line));
-	free(one_line);
-	if (!ret)
-		return (NULL);
-	if (ft_strlen(ret) == 0)
-	{
-		free(ret);
-		return (NULL);
-	}
-	return (ret);
+	dst = (char *)malloc(sizeof(char) * (buflen + 1));
+	ft_memcpy(dst, &buf[*buf_idx], buflen);
+	dst[buflen] = '\0';
+	*buf_idx = 0;
+	return (dst);
 }
 
-static bool	read_get_params(int fd, char *ret, char *buf, t_gnl_info *info)
-{
-	ssize_t	reading;
-
-	info->init_i = 0;
-	while (info->init_i < BUFFER_SIZE + 1)
-		buf[info->init_i++] = '\0';
-	reading = read(fd, buf, BUFFER_SIZE);
-	if (reading < 0 || (reading == 0 && ft_strlen(ret) == 0))
-	{
-		free(ret);
-		return (false);
-	}
-	if (reading == 0 || reading < BUFFER_SIZE)
-		info->is_eof = 1;
-	info->buf_size = 0;
-	while (buf[info->buf_size])
-		if (buf[info->buf_size++] == '\n')
-			info->gnl_cnt++;
-	if (info->buf_size < BUFFER_SIZE)
-		info->gnl_cnt++;
-	return (true);
-}
 
 char	*get_next_line(int fd)
 {
-	char				*ret;
-	static char			buf[BUFFER_SIZE + 1];
-	static t_gnl_info	info;
+	char			*ret;
+	char			*line;
+	static char		buf[BUFFER_SIZE + 1];
+	static size_t	buf_idx;
+	static size_t	nl_cnt;
+	static size_t	is_eof;
+	ssize_t			reading;
 
-	if (fd < 0)
-		return (NULL);
-	if (info.gnl_cnt && info.res_byte)
-		return (get_one_line_frm_idx(buf, &info));
-	ret = make_ret(buf, info);
+	if (nl_cnt)
+		return (get_nl_cnt(buf, &nl_cnt, &buf_idx, &is_eof));
+	ret = get_no_nl_cnt(buf, &buf_idx);
 	if (!ret)
 		return (NULL);
-	while (!info.is_eof)
+	while (!is_eof)
 	{
-		if (!read_get_params(fd, ret, buf, &info))
+		init_params(buf, &buf_idx, &nl_cnt, &is_eof);
+		reading = read(fd, buf, BUFFER_SIZE);
+		if (reading <= 0)
+		{
+			is_eof = 1;
+			init_params(buf, &buf_idx, &nl_cnt, &is_eof);
+			if (ft_strlen(ret))
+				return (ret);
+			free(ret);
 			return (NULL);
-		if (info.gnl_cnt)
-			return (ret_next_line(ret, buf, &info));
-		ret = ft_strjoin(ret, buf, info.buf_size);
+		}
+		nl_cnt = cnt_nl(buf);
+		if (nl_cnt == 0)
+		{
+			buf_idx = 0;
+			ret = ft_strjoin(ret, buf);
+			if (!ret)
+				return (NULL);
+			continue ;
+		}
+		line = get_nl_cnt(buf, &nl_cnt, &buf_idx, &is_eof);
+		ret = ft_strjoin(ret, line);
+		free(line);
 		if (!ret)
 			return (NULL);
+		return (ret);
 	}
 	free(ret);
+	init_params(buf, &buf_idx, &nl_cnt, &is_eof);
 	return (NULL);
 }

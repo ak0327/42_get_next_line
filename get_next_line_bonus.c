@@ -98,23 +98,22 @@ static bool	read_get_params(int fd, char *ret, char *buf, t_gnl_info *info)
 char	*get_next_line(int fd)
 {
 	char				*ret;
-	static char			buf[BUFFER_SIZE + 1];
 	static t_gnl_info	info;
 
 	if (fd < 0)
 		return (NULL);
 	if (info.gnl_cnt && info.res_byte)
-		return (get_one_line_frm_idx(buf, &info));
-	ret = make_ret(buf, info);
+		return (get_one_line_frm_idx(info.buf, &info));
+	ret = make_ret(info.buf, info);
 	if (!ret)
 		return (NULL);
 	while (!info.is_eof)
 	{
-		if (!read_get_params(fd, ret, buf, &info))
+		if (!read_get_params(fd, ret, info.buf, &info))
 			return (NULL);
 		if (info.gnl_cnt)
-			return (ret_next_line(ret, buf, &info));
-		ret = ft_strjoin(ret, buf, info.buf_size);
+			return (ret_next_line(ret, info.buf, &info));
+		ret = ft_strjoin(ret, info.buf, info.buf_size);
 		if (!ret)
 			return (NULL);
 	}

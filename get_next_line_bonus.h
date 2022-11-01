@@ -24,12 +24,15 @@
 
 typedef struct s_gnl_info
 {
-	size_t	buf_size;
-	size_t	buf_idx;
-	size_t	res_byte;
-	size_t	init_i;
-	int		gnl_cnt;
-	int		is_eof;
+	size_t				buf_size;
+	size_t				buf_idx;
+	size_t				res_byte;
+	size_t				init_i;
+	int					gnl_cnt;
+	int					is_eof;
+	int 				fd;
+	char				buf[BUFFER_SIZE + 1];
+	struct s_gnl_info	*next;
 }			t_gnl_info;
 
 char	*get_next_line(int fd);

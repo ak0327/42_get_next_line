@@ -22,21 +22,6 @@ size_t	ft_strlen(const char *s)
 	return (len);
 }
 
-void	*ft_memset(void *s, int c, size_t n)
-{
-	size_t			i;
-	unsigned char	*ptr;
-
-	i = 0;
-	ptr = s;
-	while (i < n)
-	{
-		ptr[i] = c;
-		i++;
-	}
-	return (s);
-}
-
 void	*ft_memcpy(void *dst, const void *src, size_t n)
 {
 	size_t	i;
@@ -52,34 +37,22 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 	return (dst);
 }
 
-void	*ft_calloc(size_t count, size_t size)
-{
-	void	*ptr;
-
-	if (count == 0 || size == 0)
-		return (ft_calloc(1, 1));
-	if (count > SIZE_MAX / size)
-		return (NULL);
-	ptr = malloc(count * size);
-	if (ptr == NULL)
-		return (NULL);
-	ft_memset(ptr, 0, count * size);
-	return (ptr);
-}
-
-char	*ft_strjoin(char *dst, char *src, size_t size)
+char	*ft_strjoin(char *dst, char *src)
 {
 	char			*ret;
-	const size_t	dstsize = ft_strlen(dst);
+	const size_t	dstlen = ft_strlen(dst);
+	const size_t	srclen = ft_strlen(src);
 
-	ret = (char *)ft_calloc(sizeof(char), dstsize + size + 1);
+	ret = (char *)malloc(sizeof(char) * (dstlen + srclen + 1));
 	if (!ret)
 	{
 		free(dst);
 		return (NULL);
 	}
-	ft_memcpy(ret, dst, dstsize);
-	ft_memcpy(&ret[dstsize], src, size);
+	ft_memcpy(ret, dst, dstlen);
+	ft_memcpy(&ret[dstlen], src, srclen);
+	ret[dstlen + srclen] = '\0';
 	free(dst);
 	return (ret);
 }
+
