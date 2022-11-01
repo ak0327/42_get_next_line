@@ -22,31 +22,21 @@
 # include <stdarg.h>
 # include <stdio.h>
 
-//typedef struct s_gnl_info
-//{
-//	size_t	buf_size;
-//	size_t	buf_idx;
-//	size_t	res_byte;
-//	size_t	init_i;
-//	int		gnl_cnt;
-//	int		is_eof;
-//
-//	int 	cnt;
-//}			t_gnl_info;
-
 typedef struct s_gnl_info
 {
 	size_t	buf_idx;
 	size_t	nl_cnt;
 	size_t	is_eof;
-	char 	buf[BUFFER_SIZE + 1];
+	ssize_t	reading;
 }			t_gnl_info;
 
-
 char	*get_next_line(int fd);
-
 char	*ft_strjoin(char *dst, char *src);
+
 size_t	ft_strlen(const char *s);
+size_t	cnt_nl(char *buf);
+
 void	*ft_memcpy(void *dst, const void *src, size_t n);
+void	init_params(char *buf, t_gnl_info *info);
 
 #endif

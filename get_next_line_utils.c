@@ -55,3 +55,29 @@ char	*ft_strjoin(char *dst, char *src)
 	free(dst);
 	return (ret);
 }
+
+void	init_params(char *buf, t_gnl_info *info)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < (size_t)BUFFER_SIZE + 1)
+		buf[i++] = '\0';
+	info->buf_idx = 0;
+	info->nl_cnt = 0;
+	info->is_eof = 0;
+	info->reading = 0;
+}
+
+size_t	cnt_nl(char *buf)
+{
+	size_t	i;
+	size_t	cnt;
+
+	i = 0;
+	cnt = 0;
+	while (buf[i])
+		if (buf[i++] == '\n')
+			cnt++;
+	return (cnt);
+}
