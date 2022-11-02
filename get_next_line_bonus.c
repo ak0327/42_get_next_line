@@ -12,60 +12,65 @@
 
 #include "get_next_line_bonus.h"
 
-static char	*make_newline(char *buf, t_gnl_info *info)
+static char	*get_line_frm_buf(t_gnl_info *info)
 {
 	char	*ret;
 	size_t	size;
+	size_t	i;
+	size_t	j;
 
 	size = 0;
-	while (buf[info->buf_idx + size])
-		if (buf[info->buf_idx + size++] == '\n')
+	while (info->buf[info->buf_idx + size])
+		if (info->buf[info->buf_idx + size++] == '\n')
 			break ;
 	ret = (char *)malloc(sizeof(char) * (size + 1));
 	if (!ret)
 		return (NULL);
-	ft_memcpy(ret, &buf[info->buf_idx], size);
+	i = 0;
+	j = 0;
+	while (i < size)
+		ret[i++] = info->buf[info->buf_idx + j++];
 	ret[size] = '\0';
 	info->buf_idx += size;
-	info->nl_cnt -= 1;
-	if (ft_strlen(buf) <= info->buf_idx)
-		init_params(buf, info);
+	info->nl_cnt--;
+	if (ft_strlen(info->buf) <= info->buf_idx)
+		init_params(info);
 	return (ret);
 }
 
-char	*ret_eof_lint(t_gnl_info *info, char *buf, char *ret)
+static char	*get_eof_line_frm_buf(t_gnl_info *info, char *ret)
 {
 	info->is_eof = 1;
-	init_params(buf, info);
 	if (ft_strlen(ret))
 		return (ret);
+	init_params(info);
 	free(ret);
 	return (NULL);
 }
 
-char	*read_and_return(int fd, char *buf, char *ret, t_gnl_info *info)
+static char	*read_and_return(int fd, char *ret, t_gnl_info *info)
 {
 	char				*line;
 
 	while (!info->is_eof)
 	{
-		init_params(buf, info);
-		info->reading = read(fd, buf, BUFFER_SIZE);
+		info->reading = read(fd, info->buf, BUFFER_SIZE);
 		if (info->reading <= 0)
-			return (ret_eof_lint(info, buf, ret));
-		info->nl_cnt = cnt_nl(buf);
-		if (info->nl_cnt)
+			return (get_eof_line_frm_buf(info, ret));
+		info->nl_cnt = cnt_chr(info->buf, '\n');
+		if (info->nl_cnt > 0)
 		{
-			line = make_newline(buf, info);
-			ret = ft_strjoin(ret, line);
+			line = get_line_frm_buf(info);
+			ret = strjoin_free_dst(ret, line);
 			free(line);
 			if (!ret)
 				return (NULL);
 			return (ret);
 		}
-		ret = ft_strjoin(ret, buf);
+		ret = strjoin_free_dst(ret, info->buf);
 		if (!ret)
 			return (NULL);
+		init_params(info);
 	}
 	return (NULL);
 }
@@ -73,19 +78,18 @@ char	*read_and_return(int fd, char *buf, char *ret, t_gnl_info *info)
 char	*get_next_line(int fd)
 {
 	char				*ret;
-	static char			buf[BUFFER_SIZE + 1];
-	static t_gnl_info	info;
+	static t_gnl_info	info[256];
 
-	if (fd < 0)
+	if (BUFFER_SIZE <= 0 || fd < 0 || fd > 255)
 		return (NULL);
-	if (info.nl_cnt)
-		return (make_newline(buf, &info));
-	ret = make_newline(buf, &info);
+	if (info[fd].nl_cnt > 0)
+		return (get_line_frm_buf(&info[fd]));
+	ret = get_line_frm_buf(&info[fd]);
 	if (!ret)
 		return (NULL);
-	if (!info.is_eof)
-		return (read_and_return(fd, buf, ret, &info));
+	if (!info[fd].is_eof)
+		return (read_and_return(fd, ret, &info[fd]));
 	free(ret);
-	init_params(buf, &info);
+	init_params(&info[fd]);
 	return (NULL);
 }

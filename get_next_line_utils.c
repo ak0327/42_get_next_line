@@ -22,36 +22,27 @@ size_t	ft_strlen(const char *s)
 	return (len);
 }
 
-void	*ft_memcpy(void *dst, const void *src, size_t n)
-{
-	size_t	i;
-
-	if (dst == NULL && src == NULL)
-		return (0);
-	i = 0;
-	while (i < n)
-	{
-		((unsigned char *)dst)[i] = ((unsigned char *)src)[i];
-		i++;
-	}
-	return (dst);
-}
-
-char	*ft_strjoin(char *dst, char *src)
+char	*strjoin_free_dst(char *dst, char *src)
 {
 	char			*ret;
-	const size_t	dstlen = ft_strlen(dst);
-	const size_t	srclen = ft_strlen(src);
+	const size_t	size = ft_strlen(dst) + ft_strlen(src);
+	size_t			i;
+	size_t			j;
 
-	ret = (char *)malloc(sizeof(char) * (dstlen + srclen + 1));
+	ret = (char *)malloc(sizeof(char) * (size + 1));
 	if (!ret)
 	{
 		free(dst);
 		return (NULL);
 	}
-	ft_memcpy(ret, dst, dstlen);
-	ft_memcpy(&ret[dstlen], src, srclen);
-	ret[dstlen + srclen] = '\0';
+	i = 0;
+	j = 0;
+	while (dst[i])
+		ret[i++] = dst[j++];
+	j = 0;
+	while (src[j])
+		ret[i++] = src[j++];
+	ret[i] = '\0';
 	free(dst);
 	return (ret);
 }
@@ -69,7 +60,7 @@ void	init_params(char *buf, t_gnl_info *info)
 	info->reading = 0;
 }
 
-size_t	cnt_nl(char *buf)
+size_t	cnt_chr(char *buf, char c)
 {
 	size_t	i;
 	size_t	cnt;
@@ -77,7 +68,7 @@ size_t	cnt_nl(char *buf)
 	i = 0;
 	cnt = 0;
 	while (buf[i])
-		if (buf[i++] == '\n')
+		if (buf[i++] == c)
 			cnt++;
 	return (cnt);
 }
