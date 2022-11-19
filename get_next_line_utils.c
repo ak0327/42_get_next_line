@@ -6,69 +6,90 @@
 /*   By: takira <takira@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/29 19:09:28 by takira            #+#    #+#             */
-/*   Updated: 2022/10/29 19:09:29 by takira           ###   ########.fr       */
+/*   Updated: 2022/11/19 14:48:56 by takira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *s)
+size_t	ft_strlen_gnl(const char *str)
 {
 	size_t	len;
 
+	if (!str)
+		return (0);
 	len = 0;
-	while (s[len])
+	while (str[len])
 		len++;
 	return (len);
 }
 
-char	*strjoin_free_dst(char *dst, char *src)
-{
-	char			*ret;
-	const size_t	size = ft_strlen(dst) + ft_strlen(src);
-	size_t			i;
-	size_t			j;
-
-	ret = (char *)malloc(sizeof(char) * (size + 1));
-	if (!ret)
-	{
-		free(dst);
-		return (NULL);
-	}
-	i = 0;
-	j = 0;
-	while (dst[i])
-		ret[i++] = dst[j++];
-	j = 0;
-	while (src[j])
-		ret[i++] = src[j++];
-	ret[i] = '\0';
-	free(dst);
-	return (ret);
-}
-
-void	init_params(char *buf, t_gnl_info *info)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < (size_t)BUFFER_SIZE + 1)
-		buf[i++] = '\0';
-	info->buf_idx = 0;
-	info->nl_cnt = 0;
-	info->is_eof = 0;
-	info->reading = 0;
-}
-
-size_t	cnt_chr(char *buf, char c)
+size_t	cnt_chr(const char *buf, char c)
 {
 	size_t	i;
 	size_t	cnt;
 
+	if (!buf)
+		return (0);
 	i = 0;
 	cnt = 0;
 	while (buf[i])
 		if (buf[i++] == c)
 			cnt++;
 	return (cnt);
+}
+
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
+{
+	size_t	i;
+	size_t	j;
+
+	i = 0;
+	j = 0;
+	if (dstsize)
+	{
+		while (src[i] && i + 1 < dstsize)
+			dst[i++] = src[j++];
+		dst[i] = '\0';
+	}
+	return (ft_strlen_gnl(src));
+}
+
+void	*ft_free(char *str1, char *str2)
+{
+	if (str1)
+	{
+		free(str1);
+		str1 = NULL;
+	}
+	if (str2)
+	{
+		free(str2);
+		str2 = NULL;
+	}
+	return (NULL);
+}
+
+char	*ft_strjoin_gnl(char *dst, char *src)
+{
+	size_t	dstlen;
+	size_t	srclen;
+	char	*joined_str;
+
+	if (!dst)
+	{
+		dst = (char *)malloc(sizeof(char) * 1);
+		if (!dst)
+			return (NULL);
+		dst[0] = '\0';
+	}
+	dstlen = ft_strlen_gnl(dst);
+	srclen = ft_strlen_gnl(src);
+	joined_str = (char *)malloc(sizeof(char) * (dstlen + srclen + 1));
+	if (!joined_str)
+		return (NULL);
+	ft_strlcpy(joined_str, dst, dstlen + 1);
+	ft_strlcpy(&joined_str[dstlen], src, dstlen + srclen + 1);
+	ft_free(dst, NULL);
+	return (joined_str);
 }

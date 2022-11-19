@@ -6,91 +6,92 @@
 /*   By: takira <takira@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/29 19:09:17 by takira            #+#    #+#             */
-/*   Updated: 2022/10/29 19:09:19 by takira           ###   ########.fr       */
+/*   Updated: 2022/11/19 14:48:45 by takira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*get_line_frm_buf(char *buf, t_gnl_info *info)
+char	*create_line_frm_save(char *save)
 {
-	char	*ret;
-	size_t	size;
-	size_t	i;
-	size_t	j;
+	char	*new_line;
+	int		i;
 
-	size = 0;
-	while (buf[info->buf_idx + size])
-		if (buf[info->buf_idx + size++] == '\n')
-			break ;
-	ret = (char *)malloc(sizeof(char) * (size + 1));
-	if (!ret)
+	if (!save || save[0] == '\0')
 		return (NULL);
 	i = 0;
+	while (save[i] && save[i] != '\n')
+		i++;
+	if (save[i] == '\n')
+		i++;
+	new_line = (char *)malloc(sizeof(char) * (i + 1));
+	if (!new_line)
+		return (NULL);
+	ft_strlcpy(new_line, save, i + 1);
+	return (new_line);
+}
+
+char	*update_save(char *save)
+{
+	char	*new_save;
+	int		i;
+	int		j;
+
+	i = 0;
+	while (save[i] && save[i] != '\n')
+		i++;
+	if (save[i] == '\0')
+		return (ft_free(save, NULL));
+	new_save = (char *)malloc(sizeof(char) * (ft_strlen_gnl(save) - i + 1));
+	if (!new_save)
+		return (ft_free(save, NULL));
+	i++;
 	j = 0;
-	while (i < size)
-		ret[i++] = buf[info->buf_idx + j++];
-	ret[size] = '\0';
-	info->buf_idx += size;
-	info->nl_cnt--;
-	if (ft_strlen(buf) <= info->buf_idx)
-		init_params(buf, info);
-	return (ret);
+	while (save[i])
+		new_save[j++] = save[i++];
+	new_save[j] = '\0';
+	ft_free(save, NULL);
+	return (new_save);
 }
 
-static char	*get_eof_line_frm_buf(t_gnl_info *info, char *buf, char *ret)
+char	*read_file_and_save(int fd, char *save)
 {
-	info->is_eof = 1;
-	if (ft_strlen(ret))
-		return (ret);
-	init_params(buf, info);
-	free(ret);
-	return (NULL);
-}
+	char	*buf;
+	int		read_bytes;
+	size_t	nl_cnt;
 
-static char	*read_and_return(int fd, char *buf, char *ret, t_gnl_info *info)
-{
-	char				*line;
-
-	while (!info->is_eof)
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buf)
+		return (NULL);
+	read_bytes = 1;
+	nl_cnt = 0;
+	while (nl_cnt == 0 && read_bytes != 0)
 	{
-		info->reading = read(fd, buf, BUFFER_SIZE);
-		if (info->reading <= 0)
-			return (get_eof_line_frm_buf(info, buf, ret));
-		info->nl_cnt = cnt_chr(buf, '\n');
-		if (info->nl_cnt > 0)
-		{
-			line = get_line_frm_buf(buf, info);
-			ret = strjoin_free_dst(ret, line);
-			free(line);
-			if (!ret)
-				return (NULL);
-			return (ret);
-		}
-		ret = strjoin_free_dst(ret, buf);
-		if (!ret)
-			return (NULL);
-		init_params(buf, info);
+		read_bytes = read(fd, buf, BUFFER_SIZE);
+		if (read_bytes == -1)
+			return (ft_free(buf, NULL));
+		buf[read_bytes] = '\0';
+		nl_cnt = cnt_chr(buf, '\n');
+		save = ft_strjoin_gnl(save, buf);
 	}
-	return (NULL);
+	ft_free(buf, NULL);
+	return (save);
 }
 
 char	*get_next_line(int fd)
 {
-	char				*ret;
-	static char			buf[BUFFER_SIZE + 1];
-	static t_gnl_info	info;
+	char		*gnl_line;
+	static char	*save_buf[OPEN_MAX + 1];
 
-	if (BUFFER_SIZE <= 0 || fd < 0)
+	errno = 0;
+	if (fd < 0 || OPEN_MAX < fd || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (info.nl_cnt > 0)
-		return (get_line_frm_buf(buf, &info));
-	ret = get_line_frm_buf(buf, &info);
-	if (!ret)
+	save_buf[fd] = read_file_and_save(fd, save_buf[fd]);
+	if (!save_buf[fd])
 		return (NULL);
-	if (!info.is_eof)
-		return (read_and_return(fd, buf, ret, &info));
-	free(ret);
-	init_params(buf, &info);
-	return (NULL);
+	gnl_line = create_line_frm_save(save_buf[fd]);
+	save_buf[fd] = update_save(save_buf[fd]);
+	if (errno != 0)
+		return (ft_free(save_buf[fd], gnl_line));
+	return (gnl_line);
 }

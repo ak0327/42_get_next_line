@@ -6,32 +6,31 @@
 /*   By: takira <takira@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/29 19:09:48 by takira            #+#    #+#             */
-/*   Updated: 2022/10/29 19:09:49 by takira           ###   ########.fr       */
+/*   Updated: 2022/11/19 14:49:06 by takira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
-# include <fcntl.h>
-# include <stdlib.h>
 # include <stdio.h>
 # include <unistd.h>
+# include <stdlib.h>
+# include <limits.h>
+# include <fcntl.h>
+# include <errno.h>
 
-typedef struct s_gnl_info
-{
-	size_t	buf_idx;
-	size_t	nl_cnt;
-	size_t	is_eof;
-	ssize_t	reading;
-}			t_gnl_info;
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 42
+# endif
 
 char	*get_next_line(int fd);
-char	*strjoin_free_dst(char *dst, char *src);
+char	*ft_strjoin_gnl(char *dst, char *src);
 
-size_t	ft_strlen(const char *s);
-size_t	cnt_chr(char *buf, char c);
+void	*ft_free(char *str1, char *str2);
 
-void	init_params(char *buf, t_gnl_info *info);
+size_t	ft_strlen_gnl(const char *str);
+size_t	cnt_chr(const char *buf, char c);
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
 
 #endif
