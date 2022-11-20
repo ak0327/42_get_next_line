@@ -6,16 +6,23 @@
 /*   By: takira <takira@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/29 19:09:17 by takira            #+#    #+#             */
-/*   Updated: 2022/11/19 14:48:45 by takira           ###   ########.fr       */
+/*   Updated: 2022/11/20 10:14:51 by takira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*create_line_frm_save(char *save)
+static size_t	minval(size_t a, size_t b)
+{
+	if (a <= b)
+		return (a);
+	return (b);
+}
+
+static char	*create_line_frm_save(char *save)
 {
 	char	*new_line;
-	int		i;
+	size_t	i;
 
 	if (!save || save[0] == '\0')
 		return (NULL);
@@ -31,11 +38,11 @@ char	*create_line_frm_save(char *save)
 	return (new_line);
 }
 
-char	*update_save(char *save)
+static char	*update_save(char *save)
 {
 	char	*new_save;
-	int		i;
-	int		j;
+	size_t	i;
+	size_t	j;
 
 	i = 0;
 	while (save[i] && save[i] != '\n')
@@ -54,20 +61,20 @@ char	*update_save(char *save)
 	return (new_save);
 }
 
-char	*read_file_and_save(int fd, char *save)
+static char	*read_file_and_save(int fd, char *save)
 {
 	char	*buf;
-	int		read_bytes;
+	ssize_t	read_bytes;
 	size_t	nl_cnt;
 
-	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	buf = (char *)malloc(sizeof(char) * ((size_t)BUFFER_SIZE + 1));
 	if (!buf)
 		return (NULL);
 	read_bytes = 1;
 	nl_cnt = 0;
 	while (nl_cnt == 0 && read_bytes != 0)
 	{
-		read_bytes = read(fd, buf, BUFFER_SIZE);
+		read_bytes = read(fd, buf, minval(BUFFER_SIZE, INT_MAX));
 		if (read_bytes == -1)
 			return (ft_free(buf, NULL));
 		buf[read_bytes] = '\0';
@@ -81,10 +88,10 @@ char	*read_file_and_save(int fd, char *save)
 char	*get_next_line(int fd)
 {
 	char		*gnl_line;
-	static char	*save_buf[OPEN_MAX + 1];
+	static char	*save_buf[OPEN_MAX];
 
 	errno = 0;
-	if (fd < 0 || OPEN_MAX < fd || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	save_buf[fd] = read_file_and_save(fd, save_buf[fd]);
 	if (!save_buf[fd])
