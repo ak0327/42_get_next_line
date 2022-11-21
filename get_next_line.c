@@ -12,7 +12,7 @@
 
 #include "get_next_line.h"
 
-static size_t	minval(size_t a, size_t b)
+static size_t	min_value(size_t a, size_t b)
 {
 	if (a <= b)
 		return (a);
@@ -24,7 +24,7 @@ static char	*create_line_frm_save(char *save)
 	char	*new_line;
 	size_t	i;
 
-	if (!save || save[0] == '\0')
+	if (!save || !save[0])
 		return (NULL);
 	i = 0;
 	while (save[i] && save[i] != '\n')
@@ -33,7 +33,7 @@ static char	*create_line_frm_save(char *save)
 		i++;
 	new_line = (char *)malloc(sizeof(char) * (i + 1));
 	if (!new_line)
-		return (NULL);
+		return (ft_free(save, NULL));
 	ft_strlcpy(new_line, save, i + 1);
 	return (new_line);
 }
@@ -69,17 +69,19 @@ static char	*read_file_and_save(int fd, char *save)
 
 	buf = (char *)malloc(sizeof(char) * ((size_t)BUFFER_SIZE + 1));
 	if (!buf)
-		return (NULL);
+		return (ft_free(save, NULL));
 	read_bytes = 1;
 	nl_cnt = 0;
 	while (nl_cnt == 0 && read_bytes != 0)
 	{
-		read_bytes = read(fd, buf, minval(BUFFER_SIZE, INT_MAX));
+		read_bytes = read(fd, buf, min_value(BUFFER_SIZE, INT_MAX));
 		if (read_bytes == -1)
 			return (ft_free(buf, NULL));
 		buf[read_bytes] = '\0';
 		nl_cnt = cnt_chr(buf, '\n');
 		save = ft_strjoin_gnl(save, buf);
+		if (!save)
+			return (NULL);
 	}
 	ft_free(buf, NULL);
 	return (save);
