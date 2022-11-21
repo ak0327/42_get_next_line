@@ -6,7 +6,7 @@
 /*   By: takira <takira@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/29 19:09:17 by takira            #+#    #+#             */
-/*   Updated: 2022/11/20 10:14:51 by takira           ###   ########.fr       */
+/*   Updated: 2022/11/21 17:03:00 by takira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ char	*get_next_line(int fd)
 	static char	*save_buf[OPEN_MAX];
 
 	errno = 0;
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 | UINT_MAX < BUFFER_SIZE)
 		return (NULL);
 	save_buf[fd] = read_file_and_save(fd, save_buf[fd]);
 	if (!save_buf[fd])
