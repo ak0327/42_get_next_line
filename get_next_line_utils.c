@@ -55,17 +55,17 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 	return (ft_strlen_gnl(src));
 }
 
-void	*ft_free(char *str1, char *str2)
+void	*ft_free(char **alloc1, char **alloc2)
 {
-	if (str1)
+	if (alloc1)
 	{
-		free(str1);
-		str1 = NULL;
+		free(*alloc1);
+		*alloc1 = NULL;
 	}
-	if (str2)
+	if (alloc2)
 	{
-		free(str2);
-		str2 = NULL;
+		free(*alloc2);
+		*alloc2 = NULL;
 	}
 	return (NULL);
 }
@@ -80,16 +80,16 @@ char	*ft_strjoin_gnl(char *dst, char *src)
 	{
 		dst = (char *)malloc(sizeof(char) * 1);
 		if (!dst)
-			return (ft_free(src, NULL));
+			return (ft_free(&src, NULL));
 		dst[0] = '\0';
 	}
 	dstlen = ft_strlen_gnl(dst);
 	srclen = ft_strlen_gnl(src);
 	joined_str = (char *)malloc(sizeof(char) * (dstlen + srclen + 1));
 	if (!joined_str)
-		return (ft_free(dst, src));
+		return (ft_free(&dst, &src));
 	ft_strlcpy(joined_str, dst, dstlen + 1);
 	ft_strlcpy(&joined_str[dstlen], src, dstlen + srclen + 1);
-	ft_free(dst, NULL);
+	ft_free(&dst, NULL);
 	return (joined_str);
 }

@@ -13,21 +13,21 @@
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
-# include <stdio.h>
-# include <unistd.h>
-# include <stdlib.h>
-# include <limits.h>
-# include <fcntl.h>
-# include <errno.h>
-
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 42
 # endif
 
+# include <errno.h>
+# include <fcntl.h>
+# include <limits.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+
 char	*get_next_line(int fd);
 char	*ft_strjoin_gnl(char *dst, char *src);
 
-void	*ft_free(char *str1, char *str2);
+void	*ft_free(char **alloc1, char **alloc2);
 
 size_t	ft_strlen_gnl(const char *str);
 size_t	cnt_chr(const char *buf, char c);

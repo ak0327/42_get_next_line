@@ -27,7 +27,7 @@
 char	*get_next_line(int fd);
 char	*ft_strjoin_gnl(char *dst, char *src);
 
-void	*ft_free(char *str1, char *str2);
+void	*ft_free(char **alloc1, char **alloc2);
 
 size_t	ft_strlen_gnl(const char *str);
 size_t	cnt_chr(const char *buf, char c);
