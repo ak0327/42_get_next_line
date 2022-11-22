@@ -80,14 +80,14 @@ char	*ft_strjoin_gnl(char *dst, char *src)
 	{
 		dst = (char *)malloc(sizeof(char) * 1);
 		if (!dst)
-			return (ft_free(&src, NULL));
+			return (NULL);
 		dst[0] = '\0';
 	}
 	dstlen = ft_strlen_gnl(dst);
 	srclen = ft_strlen_gnl(src);
 	joined_str = (char *)malloc(sizeof(char) * (dstlen + srclen + 1));
 	if (!joined_str)
-		return (ft_free(&dst, &src));
+		return (ft_free(&dst, NULL));
 	ft_strlcpy(joined_str, dst, dstlen + 1);
 	ft_strlcpy(&joined_str[dstlen], src, dstlen + srclen + 1);
 	ft_free(&dst, NULL);

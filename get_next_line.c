@@ -44,7 +44,7 @@ static char	*update_save(char *save)
 		return (ft_free(&save, NULL));
 	new_save = (char *)malloc(sizeof(char) * (ft_strlen_gnl(save) - i + 1));
 	if (!new_save)
-		return (NULL);
+		return (ft_free(&save, NULL));
 	i++;
 	j = 0;
 	while (save[i])
@@ -62,7 +62,7 @@ static char	*read_file_and_save(int fd, char *save)
 
 	buf = (char *)malloc(sizeof(char) * ((size_t)BUFFER_SIZE + 1));
 	if (!buf)
-		return (NULL);
+		return (ft_free(&save, NULL));
 	read_bytes = 1;
 	nl_cnt = 0;
 	while (nl_cnt == 0 && read_bytes != 0)
@@ -83,17 +83,17 @@ static char	*read_file_and_save(int fd, char *save)
 char	*get_next_line(int fd)
 {
 	char		*gnl_line;
-	static char	*save_buf[OPEN_MAX];
+	static char	*save_buf;
 
 	errno = 0;
 	if (fd < 0 || BUFFER_SIZE <= 0 | INT_MAX < BUFFER_SIZE)
 		return (NULL);
-	save_buf[fd] = read_file_and_save(fd, save_buf[fd]);
-	if (!save_buf[fd])
+	save_buf = read_file_and_save(fd, save_buf);
+	if (!save_buf)
 		return (NULL);
-	gnl_line = create_line_frm_save(save_buf[fd]);
-	save_buf[fd] = update_save(save_buf[fd]);
+	gnl_line = create_line_frm_save(save_buf);
+	save_buf = update_save(save_buf);
 	if (errno != 0)
-		return (ft_free(&save_buf[fd], &gnl_line));
+		return (ft_free(&save_buf, &gnl_line));
 	return (gnl_line);
 }
