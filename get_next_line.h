@@ -16,7 +16,6 @@
 # include <errno.h>
 # include <fcntl.h>
 # include <limits.h>
-# include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
 
@@ -25,12 +24,12 @@
 # endif
 
 char	*get_next_line(int fd);
-char	*ft_strjoin_gnl(char *dst, char *src);
+char	*strjoin_and_free_dst(char *dst, char *src);
 
 void	*ft_free(char **alloc1, char **alloc2);
 
 size_t	ft_strlen_gnl(const char *str);
-size_t	cnt_chr(const char *buf, char c);
+size_t	cnt_chr_in_str(const char *str, char c);
 size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
 
 #endif

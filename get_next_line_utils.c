@@ -24,17 +24,17 @@ size_t	ft_strlen_gnl(const char *str)
 	return (len);
 }
 
-size_t	cnt_chr(const char *buf, char c)
+size_t	cnt_chr_in_str(const char *str, char c)
 {
 	size_t	i;
 	size_t	cnt;
 
-	if (!buf)
+	if (!str)
 		return (0);
 	i = 0;
 	cnt = 0;
-	while (buf[i])
-		if (buf[i++] == c)
+	while (str[i])
+		if (str[i++] == c)
 			cnt++;
 	return (cnt);
 }
@@ -70,7 +70,7 @@ void	*ft_free(char **alloc1, char **alloc2)
 	return (NULL);
 }
 
-char	*ft_strjoin_gnl(char *dst, char *src)
+char	*strjoin_and_free_dst(char *dst, char *src)
 {
 	size_t	dstlen;
 	size_t	srclen;

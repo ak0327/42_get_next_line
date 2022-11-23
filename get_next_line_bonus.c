@@ -12,7 +12,7 @@
 
 #include "get_next_line_bonus.h"
 
-static char	*create_line_frm_save(char *save)
+static char	*create_newline_frm_save(char *save)
 {
 	char	*new_line;
 	size_t	i;
@@ -31,7 +31,7 @@ static char	*create_line_frm_save(char *save)
 	return (new_line);
 }
 
-static char	*update_save(char *save)
+static char	*delete_newline_in_save(char *save)
 {
 	char	*new_save;
 	size_t	i;
@@ -71,8 +71,8 @@ static char	*read_file_and_save(int fd, char *save)
 		if (read_bytes == -1)
 			return (ft_free(&buf, NULL));
 		buf[read_bytes] = '\0';
-		nl_cnt = cnt_chr(buf, '\n');
-		save = ft_strjoin_gnl(save, buf);
+		nl_cnt = cnt_chr_in_str(buf, '\n');
+		save = strjoin_and_free_dst(save, buf);
 		if (!save)
 			break ;
 	}
@@ -88,11 +88,14 @@ char	*get_next_line(int fd)
 	errno = 0;
 	if (fd < 0 || BUFFER_SIZE <= 0 | INT_MAX < BUFFER_SIZE)
 		return (NULL);
-	save_buf[fd] = read_file_and_save(fd, save_buf[fd]);
-	if (!save_buf[fd])
-		return (NULL);
-	gnl_line = create_line_frm_save(save_buf[fd]);
-	save_buf[fd] = update_save(save_buf[fd]);
+	if (cnt_chr_in_str(save_buf[fd], '\n') == 0)
+	{
+		save_buf[fd] = read_file_and_save(fd, save_buf[fd]);
+		if (!save_buf[fd])
+			return (NULL);
+	}
+	gnl_line = create_newline_frm_save(save_buf[fd]);
+	save_buf[fd] = delete_newline_in_save(save_buf[fd]);
 	if (errno != 0)
 		return (ft_free(&save_buf[fd], &gnl_line));
 	return (gnl_line);
