@@ -86,7 +86,7 @@ char	*get_next_line(int fd)
 	static char	*save_buf[OPEN_MAX];
 
 	errno = 0;
-	if (fd < 0 || BUFFER_SIZE <= 0 | INT_MAX < BUFFER_SIZE)
+	if (fd < 0 || OPEN_MAX < fd || BUFFER_SIZE <= 0 || INT_MAX < BUFFER_SIZE)
 		return (NULL);
 	if (cnt_chr_in_str('\n', save_buf[fd]) == 0)
 	{
