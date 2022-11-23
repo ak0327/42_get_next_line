@@ -89,7 +89,7 @@ char	*strjoin_and_free_dst(char *dst, char *src)
 	if (!joined_str)
 		return (ft_free(&dst, NULL));
 	ft_strlcpy(joined_str, dst, dstlen + 1);
-	ft_strlcpy(&joined_str[dstlen], src, dstlen + srclen + 1);
+	ft_strlcpy(&joined_str[dstlen], src, srclen + 1);
 	ft_free(&dst, NULL);
 	return (joined_str);
 }
