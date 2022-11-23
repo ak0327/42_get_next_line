@@ -71,7 +71,7 @@ static char	*read_file_and_save(int fd, char *save)
 		if (read_bytes == -1)
 			return (ft_free(&buf, NULL));
 		buf[read_bytes] = '\0';
-		nl_cnt = cnt_chr_in_str(buf, '\n');
+		nl_cnt = cnt_chr_in_str('\n', buf);
 		save = strjoin_and_free_dst(save, buf);
 		if (!save)
 			break ;
@@ -88,7 +88,7 @@ char	*get_next_line(int fd)
 	errno = 0;
 	if (fd < 0 || BUFFER_SIZE <= 0 | INT_MAX < BUFFER_SIZE)
 		return (NULL);
-	if (cnt_chr_in_str(save_buf[fd], '\n') == 0)
+	if (cnt_chr_in_str('\n', save_buf[fd]) == 0)
 	{
 		save_buf[fd] = read_file_and_save(fd, save_buf[fd]);
 		if (!save_buf[fd])

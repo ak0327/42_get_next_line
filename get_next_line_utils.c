@@ -24,7 +24,7 @@ size_t	ft_strlen_gnl(const char *str)
 	return (len);
 }
 
-size_t	cnt_chr_in_str(const char *str, char c)
+size_t	cnt_chr_in_str(const char c, const char *str)
 {
 	size_t	i;
 	size_t	cnt;
